@@ -17,4 +17,5 @@
         "<C-a>": false,
     },
     "editor.lineNumbers": "relative",
+    "git.confirmSync": false,
 }
