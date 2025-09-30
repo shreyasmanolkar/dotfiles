@@ -18,4 +18,5 @@
     },
     "editor.lineNumbers": "relative",
     "git.confirmSync": false,
+    "workbench.colorTheme": "Calmppuccin Nitro Cold Brew Blue",
 }
