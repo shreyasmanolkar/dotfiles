@@ -27,16 +27,16 @@ alias nrb='npm run build'
 
 # Auto-start/attach tmux for interactive shells
 # Set TMUX_AUTO=1 to enable (exported by default below)
-if command -v tmux &> /dev/null && [ -n "$PS1" ] && [[ ! "$TERM" =~ screen ]] && [[ ! "$TERM" =~ tmux ]] && [ -z "$TMUX" ] && [ -n "$TMUX_AUTO" ]; then
-  # Reuse a session if it exists; otherwise create one named "main"
-  if tmux has-session -t main 2>/dev/null; then
-    exec tmux attach -t main
-  else
-    exec tmux new -s main
-  fi
-fi
+# if command -v tmux &> /dev/null && [ -n "$PS1" ] && [[ ! "$TERM" =~ screen ]] && [[ ! "$TERM" =~ tmux ]] && [ -z "$TMUX" ] && [ -n "$TMUX_AUTO" ]; then
+#   # Reuse a session if it exists; otherwise create one named "main"
+#   if tmux has-session -t main 2>/dev/null; then
+#     exec tmux attach -t main
+#   else
+#     exec tmux new -s main
+#   fi
+# fi
 
-export TMUX_AUTO=1
+# export TMUX_AUTO=1
 
 # Enable auto-attach by default; comment this out if you don’t want it
 # Set the history file location
