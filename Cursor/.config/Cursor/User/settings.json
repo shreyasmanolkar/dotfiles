@@ -14,6 +14,7 @@
         "<C-w>": false,
         "<C-n>": false,
         "<C-x>": false,
+        "<C-a>": false,
     },
     "editor.lineNumbers": "relative",
 }
