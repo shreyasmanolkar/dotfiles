@@ -1,0 +1,19 @@
+{
+    "window.commandCenter": true,
+    "workbench.iconTheme": "material-icon-theme",
+    "keyboard.dispatch": "keyCode",
+    "vim.handleKeys": {
+        "<C-d>": true,
+        "<C-s>": false,
+        "<C-z>": false,
+        "<C-p>": false,
+        "<C-c>": false,
+        "<C-v>": false,
+        "<C-b>": false,
+        "<C-f>": false,
+        "<C-w>": false,
+        "<C-n>": false,
+        "<C-x>": false,
+    },
+    "editor.lineNumbers": "relative",
+}
