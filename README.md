@@ -50,10 +50,57 @@ sudo pacman -S walker
 
 3. **Install tmux plugins** (if using tmux):
    ```bash
-   # Start tmux and press prefix + I to install plugins
+   # Install TPM (Tmux Plugin Manager)
+   git clone https://github.com/tmux-plugins/tpm ~/.config/tmux/plugins/tpm
+   
+   # Start tmux and install plugins
    tmux
-   # Then press Ctrl+j + I
+   # Press Ctrl+j + I to install all plugins
    ```
+
+## Tmux Plugin Setup
+
+This configuration includes several useful tmux plugins:
+
+- **TPM** - Tmux Plugin Manager
+- **tmux-sensible** - Sensible tmux defaults
+- **tmux-yank** - Copy to system clipboard
+- **tmux-resurrect** - Save/restore tmux sessions
+- **tmux-continuum** - Automatic session saving
+- **vim-tmux-navigator** - Seamless vim/tmux navigation
+
+### Manual Plugin Installation
+
+If you encounter the error `'~/.config/tmux/plugins/tpm/tpm' returned 127`:
+
+1. **Install TPM first:**
+   ```bash
+   git clone https://github.com/tmux-plugins/tpm ~/.config/tmux/plugins/tpm
+   ```
+
+2. **Reload tmux configuration:**
+   ```bash
+   tmux source-file ~/.config/tmux/tmux.conf
+   ```
+
+3. **Install plugins:**
+   - Press `Ctrl+j` then `I` (prefix + I)
+   - Wait for all plugins to install
+
+### Plugin Management
+
+- **Install plugins**: `Prefix + I`
+- **Update plugins**: `Prefix + U`
+- **Uninstall plugins**: `Prefix + alt + u`
+- **Reload plugins**: `Prefix + r`
+
+### Session Persistence
+
+The configuration includes automatic session saving:
+- Sessions are saved every 5 minutes
+- Sessions are restored on tmux startup
+- Manual save: `Ctrl+a`
+- Manual restore: `Ctrl+e`
 
 ## Individual Package Installation
 
@@ -131,4 +178,6 @@ stow bashrc
 # Reinstall plugins
 ~/.config/tmux/plugins/tpm/bin/install_plugins
 ```
+
+### 
 
