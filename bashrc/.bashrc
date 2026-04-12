@@ -1,3 +1,6 @@
+# If not running interactively, don't do anything (leave this at the top of this file)
+[[ $- != *i* ]] && return
+
 # All the default Omarchy aliases and functions
 # (don't mess with these directly, just overwrite them here!)
 source ~/.local/share/omarchy/default/bash/rc
@@ -7,9 +10,13 @@ source ~/.local/share/omarchy/default/bash/rc
 # Make an alias for invoking commands you use constantly
 # alias p='python'
 
-function cursor() {
-    { exec setsid cursor "$@" > /dev/null 2>&1 & } 2>/dev/null
-    disown
+#function cursor() {
+#    { exec setsid cursor "$@" > /dev/null 2>&1 & } 2>/dev/null
+#    disown
+#}
+
+cursor() {
+  ~/Applications/cursor.AppImage "$@" &
 }
 
 alias c='clear'
@@ -56,3 +63,6 @@ export NVM_DIR="$HOME/.config/nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
+export PATH="$HOME/.local/bin:$PATH"
+
+. "$HOME/.local/share/../bin/env"
