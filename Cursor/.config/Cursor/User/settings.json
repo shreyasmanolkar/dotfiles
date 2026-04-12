@@ -18,7 +18,14 @@
     },
     "editor.lineNumbers": "relative",
     "git.confirmSync": false,
-    "workbench.colorTheme": "Calmppuccin Nitro Cold Brew Blue",
+    "workbench.colorTheme": "Catppuccin Macchiato",
     "typescript.updateImportsOnFileMove.enabled": "always",
     "editor.tabSize": 2,
+    "terminal.integrated.allowedLinkSchemes": [
+        "file",
+        "http",
+        "mailto",
+        "vscode",
+        "vscode-insiders"
+    ],
 }
