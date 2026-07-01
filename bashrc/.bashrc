@@ -27,7 +27,6 @@ alias lt='eza -a --tree --level=1 --icons'
 alias nrd='npm run dev'
 alias nrs='npm run start'
 alias nrb='npm run build'
-alias cpwd='copy_path'
 
 # if command -v tmux &> /dev/null && [ -n "$PS1" ] && [[ ! "$TERM" =~ screen ]] && [[ ! "$TERM" =~ tmux ]] && [ -z "$TMUX" ]; then
 #   exec tmux
@@ -92,3 +91,5 @@ copy_path() {
         printf 'Current path: %s\n' "$path"
     fi
 }
+
+alias cpwd='copy_path'
