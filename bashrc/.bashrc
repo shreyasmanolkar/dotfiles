@@ -19,6 +19,31 @@ cursor() {
   ~/Applications/cursor.AppImage "$@" &
 }
 
+# ============================================
+# Copy current directory path to clipboard
+# ============================================
+copy_path() {
+    local path
+    path=$(pwd)
+    
+    if command -v wl-copy >/dev/null 2>&1; then
+        printf '%s' "$path" | wl-copy
+        printf '✓ Copied to clipboard (Wayland): %s\n' "$path"
+    elif command -v xclip >/dev/null 2>&1; then
+        printf '%s' "$path" | xclip -selection clipboard
+        printf '✓ Copied to clipboard (X11): %s\n' "$path"
+    elif command -v pbcopy >/dev/null 2>&1; then
+        printf '%s' "$path" | pbcopy
+        printf '✓ Copied to clipboard (macOS): %s\n' "$path"
+    else
+        printf '⚠ No clipboard utility found.\n'
+        printf 'Install with:\n'
+        printf '  sudo apt install xclip          # for X11\n'
+        printf '  sudo apt install wl-clipboard   # for Wayland\n\n'
+        printf 'Current path: %s\n' "$path"
+    fi
+}
+
 alias c='clear'
 alias code='cursor'
 alias ls='eza -a --icons'
@@ -27,7 +52,7 @@ alias lt='eza -a --tree --level=1 --icons'
 alias nrd='npm run dev'
 alias nrs='npm run start'
 alias nrb='npm run build'
-alias cpwd='printf "\033]52;c;%s\a" "$(pwd | base64 -w0)" && echo "✓ Copied: $(pwd)"'
+alias cpwd='copy_path'
 
 # if command -v tmux &> /dev/null && [ -n "$PS1" ] && [[ ! "$TERM" =~ screen ]] && [[ ! "$TERM" =~ tmux ]] && [ -z "$TMUX" ]; then
 #   exec tmux
