@@ -1,0 +1,11 @@
+{
+  "location": {"name": "Kolkata", "latitude": 22.5726, "longitude": 88.3639, "elevation_m": 9},
+  "timezone": "Asia/Kolkata",
+  "calendar": {
+    "lunar_month_convention": "amanta",
+    "vikram_samvat_convention": "chaitradi",
+    "ayanamsha": "lahiri",
+    "sunrise_mode": "geometric_center"
+  },
+  "display": {"use_24_hour_time": true, "show_devanagari": true, "traditional_time": "sunrise_proportional"}
+}

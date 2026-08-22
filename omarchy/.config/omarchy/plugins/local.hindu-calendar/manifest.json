@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "local.hindu-calendar",
+  "name": "Hindu Calendar & Panchāṅga",
+  "version": "0.1.0",
+  "author": "Shreyas",
+  "description": "Offline, location-aware Hindu calendar, Pañcāṅga, and traditional-time widget.",
+  "kinds": ["bar-widget"],
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "Hindu Calendar & Panchāṅga",
+    "description": "Location-aware Pañcāṅga using local Swiss Ephemeris calculations.",
+    "category": "Time",
+    "allowMultiple": false,
+    "defaultSection": "center"
+  }
+}
