@@ -463,7 +463,9 @@ class PanchangEngine:
             observances.append("Amāvasyā")
 
         time_format = "%H:%M" if self.settings.use_24_hour_time else "%I:%M %p"
-        clock = local_now.strftime(time_format).lstrip("0")
+        clock = local_now.strftime(time_format)
+        if not self.settings.use_24_hour_time:
+            clock = clock.lstrip("0")
         compact = f"{clock} · {local_now.strftime('%d %b')} · VS {samvat['year']}"
         masa_text = ("Adhika " if masa["adhika"] else "") + masa["name"]
         panchang_rows = [
@@ -507,11 +509,12 @@ class PanchangEngine:
                     "moon_sidereal_degrees": fmt_num(moon),
                     "sun_tropical_degrees": fmt_num(tropical_sun),
                     "moon_tropical_degrees": fmt_num(tropical_moon),
-                    # In a heliocentric annual-cycle sketch, Earth lies opposite
-                    # the apparent geocentric Sun.  This is deliberately not a
-                    # claim about orbital distance or true anomaly.
-                    "earth_orbit_degrees": fmt_num(normalize(tropical_sun + 180.0)),
-                    "reference": "Geocentric ecliptic longitudes; annual Earth marker is schematic",
+                    # The displayed annual ring is labelled with Lahiri sidereal
+                    # solar months, so its Earth marker uses the same reference.
+                    # The tropical equivalent remains available to consumers.
+                    "earth_orbit_degrees": fmt_num(normalize(sun + 180.0)),
+                    "earth_orbit_tropical_degrees": fmt_num(normalize(tropical_sun + 180.0)),
+                    "reference": "Geocentric ecliptic longitudes; annual Earth markers are schematic",
                 },
                 "sankranti": {"name": f"{SOLAR_RASIS[next_sign]} Saṅkrānti", "at": local_iso(next_sankranti)},
             },

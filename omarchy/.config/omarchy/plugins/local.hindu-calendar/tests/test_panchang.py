@@ -95,12 +95,19 @@ class PanchangTests(unittest.TestCase):
         self.assertLess(cycle["phase_age_approx_days"], 29.6)
         for key in (
             "sun_sidereal_degrees", "moon_sidereal_degrees", "sun_tropical_degrees",
-            "moon_tropical_degrees", "earth_orbit_degrees",
+            "moon_tropical_degrees", "earth_orbit_degrees", "earth_orbit_tropical_degrees",
         ):
             self.assertGreaterEqual(positions[key], 0)
             self.assertLess(positions[key], 360)
-        expected_earth = (positions["sun_tropical_degrees"] + 180) % 360
+        expected_earth = (positions["sun_sidereal_degrees"] + 180) % 360
         self.assertAlmostEqual(positions["earth_orbit_degrees"], expected_earth, places=2)
+        expected_tropical_earth = (positions["sun_tropical_degrees"] + 180) % 360
+        self.assertAlmostEqual(positions["earth_orbit_tropical_degrees"], expected_tropical_earth, places=2)
+
+    def test_24_hour_midnight_keeps_leading_zero(self) -> None:
+        report = build("2026-08-23T00:05:00+05:30")
+        self.assertEqual(report["header"]["time"], "00:05")
+        self.assertTrue(report["compact"].startswith("00:05 ·"))
 
     def test_missing_coordinates_are_rejected_without_fabricated_data(self) -> None:
         raw = json.loads(FIXTURE.read_text(encoding="utf-8"))

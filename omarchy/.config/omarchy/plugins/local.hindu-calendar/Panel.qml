@@ -167,10 +167,10 @@ Panel {
     onPaint: {
       var ctx = getContext("2d")
       ctx.clearRect(0, 0, width, height)
-      var cx = width * 0.48
-      var cy = height * 0.51
-      var rx = Math.max(70, width * 0.40)
-      var ry = Math.max(42, height * 0.34)
+      var cx = width * 0.50
+      var cy = height * 0.49
+      var rx = Math.max(90, width * 0.46)
+      var ry = Math.max(58, height * 0.40)
       var fg = String(foreground)
       var hi = String(accent)
       var tau = Math.PI * 2
@@ -179,10 +179,11 @@ Panel {
         var a = angle * Math.PI / 180 - Math.PI / 2
         return { x: cx + rx * radialScale * Math.cos(a), y: cy + ry * radialScale * Math.sin(a) }
       }
-      function ellipse(stroke, alpha, lineWidth) {
+      function ellipse(stroke, alpha, lineWidth, radialScale) {
+        var scale = radialScale || 1
         ctx.save()
         ctx.translate(cx, cy)
-        ctx.scale(rx, ry)
+        ctx.scale(rx * scale, ry * scale)
         ctx.beginPath()
         ctx.arc(0, 0, 1, 0, tau)
         ctx.restore()
@@ -203,15 +204,41 @@ Panel {
           ctx.stroke()
         }
       }
+      function ringLabel(label, angle, radialScale, fontSize, fill, alpha, bold) {
+        var a = angle * Math.PI / 180 - Math.PI / 2
+        var labelPoint = point(angle, radialScale)
+        var tangent = Math.atan2(ry * radialScale * Math.cos(a), -rx * radialScale * Math.sin(a))
+        if (tangent > Math.PI / 2 || tangent < -Math.PI / 2) tangent += Math.PI
+        ctx.save()
+        ctx.translate(labelPoint.x, labelPoint.y)
+        ctx.rotate(tangent)
+        ctx.textAlign = "center"
+        ctx.textBaseline = "middle"
+        ctx.font = (bold ? "700 " : "500 ") + fontSize + "px sans-serif"
+        ctx.fillStyle = fill
+        ctx.globalAlpha = alpha
+        ctx.fillText(label, 0, 0)
+        ctx.restore()
+      }
 
-      // Outer annual path, twelve solar-month ticks, and the 27 equal
-      // nakṣatra reference divisions.  The active lunar division is accented.
-      ellipse(fg, 0.24, 1)
+      // Three concentric layers: the outer 27-part nakṣatra band, the inner
+      // twelve-month band, and a compact central annual Pṛthvī orbit.
+      ellipse(fg, 0.30, 1, 1.0)
+      ellipse(fg, 0.20, 1, 0.79)
+      ellipse(fg, 0.20, 1, 0.57)
+      ellipse(fg, 0.18, 1, 0.43)
+
+      var nakshatraLabels = [
+        "Aśvinī", "Bharaṇī", "Kṛttikā", "Rohiṇī", "Mṛgaś.", "Ārdrā", "Punarv.",
+        "Puṣya", "Āśleṣā", "Maghā", "P. Phalg.", "U. Phalg.", "Hastā", "Citrā",
+        "Svātī", "Viśākhā", "Anurā.", "Jyeṣṭhā", "Mūlā", "P. Āṣā.", "U. Āṣā.",
+        "Śravaṇā", "Dhaniṣ.", "Śatabhi.", "P. Bhādra", "U. Bhādra", "Revatī"
+      ]
       var activeNakshatra = Math.floor((((moonSidereal % 360) + 360) % 360) / (360 / 27))
       for (var index = 0; index < 27; index++) {
         var angle = index * 360 / 27
-        var inner = point(angle, index === activeNakshatra ? 0.89 : 0.94)
-        var outer = point(angle, 1.02)
+        var inner = point(angle, index === activeNakshatra ? 0.76 : 0.79)
+        var outer = point(angle, 1.0)
         ctx.beginPath()
         ctx.moveTo(inner.x, inner.y)
         ctx.lineTo(outer.x, outer.y)
@@ -219,12 +246,19 @@ Panel {
         ctx.globalAlpha = index === activeNakshatra ? 1 : 0.24
         ctx.lineWidth = index === activeNakshatra ? 2.5 : 1
         ctx.stroke()
+        ringLabel(
+          nakshatraLabels[index], angle + 360 / 54, 0.89,
+          index === activeNakshatra ? 6.9 : 6.2,
+          index === activeNakshatra ? hi : fg,
+          index === activeNakshatra ? 1 : 0.63,
+          index === activeNakshatra
+        )
       }
       ctx.globalAlpha = 1
       for (var solarIndex = 0; solarIndex < 12; solarIndex++) {
         var solarAngle = solarIndex * 30
-        var solarInner = point(solarAngle, 0.86)
-        var solarOuter = point(solarAngle, 1.0)
+        var solarInner = point(solarAngle, 0.57)
+        var solarOuter = point(solarAngle, 0.79)
         ctx.beginPath()
         ctx.moveTo(solarInner.x, solarInner.y)
         ctx.lineTo(solarOuter.x, solarOuter.y)
@@ -235,7 +269,26 @@ Panel {
       }
       ctx.globalAlpha = 1
 
-      var earth = point(earthLongitude, 0.78)
+      // Solar months share the twelve 30° Lahiri rāśi sectors.
+      var solarMonths = [
+        "Meṣa", "Vṛṣabha", "Mithuna", "Karka", "Siṁha", "Kanyā",
+        "Tulā", "Vṛścika", "Dhanuṣ", "Makara", "Kumbha", "Mīna"
+      ]
+      var activeSolarMonth = Math.floor((((sunSidereal % 360) + 360) % 360) / 30)
+      for (var monthIndex = 0; monthIndex < solarMonths.length; monthIndex++) {
+        var isActiveMonth = monthIndex === activeSolarMonth
+        ringLabel(
+          solarMonths[monthIndex], monthIndex * 30 + 15, 0.68,
+          isActiveMonth ? 8.2 : 7.5,
+          isActiveMonth ? hi : fg,
+          isActiveMonth ? 1 : 0.70,
+          isActiveMonth
+        )
+      }
+      ctx.globalAlpha = 1
+      ctx.textBaseline = "alphabetic"
+
+      var earth = point(earthLongitude, 0.43)
       var earthAngle = earthLongitude * Math.PI / 180 - Math.PI / 2
       var moonAngle = earthAngle + Math.PI + phaseDegrees * Math.PI / 180
       var moonRadius = Math.max(16, Math.min(width, height) * 0.105)
@@ -265,9 +318,9 @@ Panel {
       ctx.fillText("SŪRYA", cx, cy + 25)
       ctx.fillText("PṚTHVĪ", earth.x, earth.y + 19)
       ctx.fillText("CANDRA", moon.x, moon.y - 10)
-      ctx.font = "8px sans-serif"
+      ctx.font = "7px sans-serif"
       ctx.globalAlpha = 0.48
-      ctx.fillText("27 NAKṢATRA DIVISIONS", cx, height - 3)
+      ctx.fillText("INNER · 12 SAURA MĀSA    OUTER · 27 NAKṢATRA", cx, height - 3)
       ctx.globalAlpha = 1
     }
   }
@@ -494,14 +547,14 @@ Panel {
 
             Item {
               width: parent.width
-              height: Style.space(188)
+              height: Style.space(300)
 
               OrbitDiagram {
                 id: orbitDiagram
                 anchors.left: parent.left
+                anchors.right: parent.right
                 anchors.top: parent.top
-                width: parent.width - Style.space(142)
-                height: parent.height
+                height: Style.space(235)
                 earthLongitude: root.panchangData.status === "ok" && root.panchangData.solar_lunar.positions
                   ? root.panchangData.solar_lunar.positions.earth_orbit_degrees : 0
                 phaseDegrees: root.panchangData.status === "ok" ? root.panchangData.solar_lunar.phase_degrees : 0
@@ -511,46 +564,52 @@ Panel {
                   ? root.panchangData.solar_lunar.positions.sun_sidereal_degrees : 0
               }
 
-              Column {
+              Item {
+                anchors.left: parent.left
                 anchors.right: parent.right
-                anchors.verticalCenter: parent.verticalCenter
-                width: Style.space(132)
-                spacing: Style.space(4)
+                anchors.top: orbitDiagram.bottom
+                anchors.bottom: parent.bottom
 
                 MoonPhaseDiagram {
-                  anchors.horizontalCenter: parent.horizontalCenter
-                  width: Style.space(72)
+                  id: compactMoonPhase
+                  anchors.left: parent.left
+                  anchors.verticalCenter: parent.verticalCenter
+                  width: Style.space(52)
                   height: width
                   phaseDegrees: root.panchangData.status === "ok" ? root.panchangData.solar_lunar.phase_degrees : 0
                 }
-                Text {
-                  width: parent.width
-                  horizontalAlignment: Text.AlignHCenter
-                  wrapMode: Text.WordWrap
-                  text: root.panchangData.status === "ok" ? root.panchangData.solar_lunar.phase_name : ""
-                  color: root.contentForeground
-                  font.family: root.contentFontFamily
-                  font.pixelSize: Style.font.bodySmall
-                  font.bold: true
-                }
-                Text {
-                  width: parent.width
-                  horizontalAlignment: Text.AlignHCenter
-                  text: root.panchangData.status === "ok"
-                    ? root.panchangData.solar_lunar.illumination_approx + "% lit · day ~" + root.panchangData.solar_lunar.phase_age_approx_days
-                    : ""
-                  color: Qt.darker(root.contentForeground, 1.35)
-                  font.family: root.contentFontFamily
-                  font.pixelSize: Style.font.caption
-                }
-                Text {
-                  width: parent.width
-                  horizontalAlignment: Text.AlignHCenter
-                  wrapMode: Text.WordWrap
-                  text: root.panchangValue("Saura māsa") + " · " + root.panchangValue("Nakṣatra")
-                  color: Color.accent
-                  font.family: root.contentFontFamily
-                  font.pixelSize: Style.font.caption
+
+                Column {
+                  anchors.left: compactMoonPhase.right
+                  anchors.leftMargin: Style.space(10)
+                  anchors.right: parent.right
+                  anchors.verticalCenter: parent.verticalCenter
+                  spacing: Style.space(2)
+
+                  Text {
+                    width: parent.width
+                    text: root.panchangData.status === "ok"
+                      ? root.panchangData.solar_lunar.phase_name + " · " + root.panchangData.solar_lunar.illumination_approx + "% lit · lunar day ~" + root.panchangData.solar_lunar.phase_age_approx_days
+                      : ""
+                    color: root.contentForeground
+                    font.family: root.contentFontFamily
+                    font.pixelSize: Style.font.bodySmall
+                    font.bold: true
+                  }
+                  Text {
+                    width: parent.width
+                    text: "Current Saura Māsa · " + root.panchangValue("Saura māsa")
+                    color: Color.accent
+                    font.family: root.contentFontFamily
+                    font.pixelSize: Style.font.caption
+                  }
+                  Text {
+                    width: parent.width
+                    text: "Current Nakṣatra · " + root.panchangValue("Nakṣatra") + "  ·  P./U. = Pūrvā/Uttarā"
+                    color: Qt.darker(root.contentForeground, 1.30)
+                    font.family: root.contentFontFamily
+                    font.pixelSize: Style.font.caption
+                  }
                 }
               }
             }
@@ -558,7 +617,7 @@ Panel {
             Text {
               width: parent.width
               wrapMode: Text.WordWrap
-              text: "Ecliptic schematic, not to scale. Pṛthvī’s annual marker is opposite the apparent tropical Sun; the highlighted outer tick is Candra’s current Lahiri nakṣatra division."
+              text: "Ecliptic schematic, not to scale. The twelve inner labels are Lahiri Saura Māsa/rāśi sectors; the current month is accented. Pṛthvī is opposite the sidereal Sun, and the highlighted outer tick is Candra’s current nakṣatra division."
               color: Qt.darker(root.contentForeground, 1.55)
               font.family: root.contentFontFamily
               font.pixelSize: Style.font.caption
