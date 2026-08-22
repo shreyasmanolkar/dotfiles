@@ -16,3 +16,9 @@ hl.window_rule({
   border_size = 2,
   border_color = "rgb(cdd6f4) rgba(595959aa)",
 })
+
+-- Keep the idle lock and screensaver from interrupting active media viewing.
+-- YouTube web apps include youtube.com in their Chromium app id; regular
+-- YouTube tabs end their title with " - YouTube".
+o.window("^(vlc|.*youtube\\.com.*)$", { idle_inhibit = "focus" })
+o.window({ title = "^.+ - YouTube$" }, { idle_inhibit = "focus" })
