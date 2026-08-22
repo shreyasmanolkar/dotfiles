@@ -1,0 +1,72 @@
+#!/bin/bash
+
+# User-owned replacement for omarchy-agent-usage-update.
+# The packaged updater still passes `-a untrusted` to newer Codex releases.
+# Keep the packaged Claude/Fireworks collectors, but use the fixed Codex
+# collector and the local Grok log collector from this plugin.
+
+set -u
+
+plugin_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+usage_dir="${XDG_STATE_HOME:-$HOME/.local/state}/omarchy/agents/usage"
+mkdir -p "$usage_dir"
+
+flags=()
+only=()
+declare -A excluded=()
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --force|--limits-only)
+      flags+=("$1")
+      ;;
+    --except)
+      [[ $# -ge 2 ]] || { echo "usage-update: --except requires an agent" >&2; exit 2; }
+      excluded["$2"]=1
+      shift
+      ;;
+    *)
+      only+=("$1")
+      ;;
+  esac
+  shift
+done
+
+wanted() {
+  local agent="$1" candidate
+  [[ -z ${excluded[$agent]+x} ]] || return 1
+  (( ${#only[@]} == 0 )) && return 0
+  for candidate in "${only[@]}"; do
+    [[ "$candidate" == "$agent" ]] && return 0
+  done
+  return 1
+}
+
+collect() {
+  local collector="$1" agent="$2" record tmp
+  if ! record=$("$collector" "${flags[@]}") || [[ -z "$record" ]] || ! jq -e . >/dev/null 2>&1 <<<"$record"; then
+    echo "usage-update: $agent collector failed" >&2
+    return 1
+  fi
+  tmp=$(mktemp "$usage_dir/.$agent.XXXXXX") || return 1
+  printf '%s\n' "$record" >"$tmp"
+  mv "$tmp" "$usage_dir/$agent.json"
+}
+
+status=0
+
+# Exclude both locally-owned providers from the packaged updater. Passing the
+# remaining arguments preserves the built-in collectors and their settings.
+system_args=("${flags[@]}" --except codex --except grok)
+system_args+=("${only[@]}")
+/usr/share/omarchy/bin/omarchy-agent-usage-update "${system_args[@]}" || status=1
+
+if wanted codex; then
+  collect "$plugin_dir/omarchy-agent-usage-codex-fixed" codex || status=1
+fi
+
+if wanted grok; then
+  collect "$plugin_dir/omarchy-agent-usage-grok" grok || status=1
+fi
+
+exit "$status"
