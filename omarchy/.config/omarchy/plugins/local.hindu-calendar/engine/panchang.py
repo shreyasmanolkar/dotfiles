@@ -58,21 +58,41 @@ NAKSHATRAS = [
     "Jyeṣṭhā", "Mūlā", "Pūrvāṣāḍhā", "Uttarāṣāḍhā", "Śravaṇā", "Dhaniṣṭhā", "Śatabhiṣaj",
     "Pūrvabhādrapadā", "Uttarabhādrapadā", "Revatī",
 ]
+NAKSHATRAS_DEVANAGARI = [
+    "अश्विनी", "भरणी", "कृत्तिका", "रोहिणी", "मृगशीर्षा", "आर्द्रा", "पुनर्वसु", "पुष्य", "आश्लेषा",
+    "मघा", "पूर्वाफाल्गुनी", "उत्तराफाल्गुनी", "हस्त", "चित्रा", "स्वाती", "विशाखा", "अनुराधा",
+    "ज्येष्ठा", "मूल", "पूर्वाषाढा", "उत्तराषाढा", "श्रवण", "धनिष्ठा", "शतभिषा", "पूर्वभाद्रपदा",
+    "उत्तरभाद्रपदा", "रेवती",
+]
 YOGAS = [
     "Viṣkambha", "Prīti", "Āyuṣmān", "Saubhāgya", "Śobhana", "Atigaṇḍa", "Sukarmā", "Dhṛti", "Śūla",
     "Gaṇḍa", "Vṛddhi", "Dhruva", "Vyāghāta", "Harṣaṇa", "Vajra", "Siddhi", "Vyatīpāta", "Varīyān",
     "Parigha", "Śiva", "Siddha", "Sādhya", "Śubha", "Śukla", "Brahmā", "Aindra", "Vaidhṛti",
 ]
+YOGAS_DEVANAGARI = [
+    "विष्कम्भ", "प्रीति", "आयुष्मान्", "सौभाग्य", "शोभन", "अतिगण्ड", "सुकर्मा", "धृति", "शूल",
+    "गण्ड", "वृद्धि", "ध्रुव", "व्याघात", "हर्षण", "वज्र", "सिद्धि", "व्यतीपात", "वरीयान्",
+    "परिघ", "शिव", "सिद्ध", "साध्य", "शुभ", "शुक्ल", "ब्रह्म", "ऐन्द्र", "वैधृति",
+]
 KARANA_CYCLE = ["Bava", "Bālava", "Kaulava", "Taitila", "Gara", "Vāṇija", "Viṣṭi"]
+KARANA_DEVANAGARI_CYCLE = ["बव", "बालव", "कौलव", "तैतिल", "गर", "वणिज", "विष्टि"]
+KARANA_DEVANAGARI_FIXED = ["शकुनि", "चतुष्पाद", "नाग"]
 SOLAR_RASIS = [
     "Meṣa", "Vṛṣabha", "Mithuna", "Karka", "Siṁha", "Kanyā", "Tulā", "Vṛścika", "Dhanuṣ",
     "Makara", "Kumbha", "Mīna",
+]
+SOLAR_RASIS_DEVANAGARI = [
+    "मेष", "वृषभ", "मिथुन", "कर्क", "सिंह", "कन्या", "तुला", "वृश्चिक", "धनु", "मकर", "कुम्भ", "मीन",
 ]
 # The lunar month between two new moons is named for the sidereal solar sign
 # at its new moon.  Mīna at the new moon gives Caitra, Meṣa gives Vaiśākha.
 LUNAR_MONTH_FOR_SUN_RASI = [
     "Vaiśākha", "Jyeṣṭha", "Āṣāḍha", "Śrāvaṇa", "Bhādrapada", "Āśvina", "Kārtika", "Mārgaśīrṣa",
     "Pauṣa", "Māgha", "Phālguna", "Caitra",
+]
+LUNAR_MONTH_FOR_SUN_RASI_DEVANAGARI = [
+    "वैशाख", "ज्येष्ठ", "आषाढ़", "श्रावण", "भाद्रपद", "आश्विन", "कार्तिक", "मार्गशीर्ष",
+    "पौष", "माघ", "फाल्गुन", "चैत्र",
 ]
 
 
@@ -425,10 +445,15 @@ class PanchangEngine:
         karana_index = int(phase // 6)
         if karana_index == 0:
             karana = "Kiṁstughna"
+            karana_devanagari = "किंस्तुघ्न"
         elif karana_index <= 56:
-            karana = KARANA_CYCLE[(karana_index - 1) % len(KARANA_CYCLE)]
+            cycle_index = (karana_index - 1) % len(KARANA_CYCLE)
+            karana = KARANA_CYCLE[cycle_index]
+            karana_devanagari = KARANA_DEVANAGARI_CYCLE[cycle_index]
         else:
-            karana = ["Śakuni", "Catuṣpāda", "Nāga"][karana_index - 57]
+            fixed_index = karana_index - 57
+            karana = ["Śakuni", "Catuṣpāda", "Nāga"][fixed_index]
+            karana_devanagari = KARANA_DEVANAGARI_FIXED[fixed_index]
 
         sunrise, sunset, next_sunrise = self.sun_windows(local_now.date())
         moonrise = self.rise_set(local_now.date(), swe.MOON, True)
@@ -468,15 +493,18 @@ class PanchangEngine:
             clock = clock.lstrip("0")
         compact = f"{clock} · {local_now.strftime('%d %b')} · VS {samvat['year']}"
         masa_text = ("Adhika " if masa["adhika"] else "") + masa["name"]
+        masa_devanagari = ("अधिक " if masa["adhika"] else "") + LUNAR_MONTH_FOR_SUN_RASI_DEVANAGARI[
+            LUNAR_MONTH_FOR_SUN_RASI.index(masa["name"])
+        ]
         panchang_rows = [
             row("Vāra", VARA[weekday][0], VARA[weekday][1], tooltip="Weekday at the configured location."),
             row("Tithi", f"{paksha} {TITHIS[tithi_index]}", TITHI_DEVANAGARI[tithi_index], local_iso(tithi_end), "12° of elongation between the Moon and Sun."),
             row("Pakṣa", paksha, "शुक्ल पक्ष" if paksha == "Śukla" else "कृष्ण पक्ष"),
-            row("Nakṣatra", NAKSHATRAS[nak_index], "", local_iso(nak_end), "Moon’s sidereal longitude divided into 27 equal parts."),
-            row("Yoga", YOGAS[yoga_index], "", local_iso(yoga_end), "Sum of sidereal Sun and Moon longitudes divided into 27 equal parts."),
-            row("Karaṇa", karana, "", local_iso(karana_end), "Half of a tithi; the sequence is calculated at this instant."),
-            row("Māsa", masa_text, "", tooltip=f"{masa['convention'].title()} lunar-month convention."),
-            row("Saura māsa", SOLAR_RASIS[solar_sign], "", tooltip="Sidereal solar sign; the solar-calendar layer."),
+            row("Nakṣatra", NAKSHATRAS[nak_index], NAKSHATRAS_DEVANAGARI[nak_index], local_iso(nak_end), "Moon’s sidereal longitude divided into 27 equal parts."),
+            row("Yoga", YOGAS[yoga_index], YOGAS_DEVANAGARI[yoga_index], local_iso(yoga_end), "Sum of sidereal Sun and Moon longitudes divided into 27 equal parts."),
+            row("Karaṇa", karana, karana_devanagari, local_iso(karana_end), "Half of a tithi; the sequence is calculated at this instant."),
+            row("Māsa", masa_text, masa_devanagari, tooltip=f"{masa['convention'].title()} lunar-month convention."),
+            row("Saura māsa", SOLAR_RASIS[solar_sign], SOLAR_RASIS_DEVANAGARI[solar_sign], tooltip="Sidereal solar sign; the solar-calendar layer."),
         ]
         if not self.settings.show_devanagari:
             for item in panchang_rows:

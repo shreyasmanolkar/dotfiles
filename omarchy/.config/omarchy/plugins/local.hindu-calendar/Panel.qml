@@ -49,11 +49,46 @@ Panel {
   function interval(values) {
     return values && values.length === 2 ? timeAt(values[0]) + " – " + timeAt(values[1]) : "—"
   }
+  function sanskritLabel(label) {
+    var labels = {
+      "Vāra": "वार",
+      "Tithi": "तिथि",
+      "Pakṣa": "पक्ष",
+      "Nakṣatra": "नक्षत्र",
+      "Yoga": "योग",
+      "Karaṇa": "करण",
+      "Māsa": "मास",
+      "Saura māsa": "सौर मास",
+      "Sūryodaya": "सूर्योदय",
+      "Sūryāsta": "सूर्यास्त",
+      "Candrodaya": "चन्द्रोदय",
+      "Candrāsta": "चन्द्रास्त",
+      "Moon phase": "चन्द्र कला",
+      "Saṅkrānti": "संक्रान्ति",
+      "Rāhu Kāla": "राहु काल",
+      "Yamaganda": "यमगण्ड",
+      "Gulika Kāla": "गुलिक काल",
+      "Abhijit Muhūrta": "अभिजित मुहूर्त",
+      "Brahma Muhūrta": "ब्रह्म मुहूर्त",
+      "Prahara": "प्रहर",
+      "Muhūrta": "मुहूर्त",
+      "Ghaṭī · Kalā": "घटी · कला"
+    }
+    return labels[label] || label
+  }
   function panchangValue(label) {
     if (root.panchangData.status !== "ok" || !root.panchangData.panchang) return "—"
     for (var index = 0; index < root.panchangData.panchang.length; index++) {
       var item = root.panchangData.panchang[index]
       if (item.label === label) return item.value || "—"
+    }
+    return "—"
+  }
+  function panchangDevanagariValue(label) {
+    if (root.panchangData.status !== "ok" || !root.panchangData.panchang) return "—"
+    for (var index = 0; index < root.panchangData.panchang.length; index++) {
+      var item = root.panchangData.panchang[index]
+      if (item.label === label) return item.devanagari || item.value || "—"
     }
     return "—"
   }
@@ -102,7 +137,7 @@ Panel {
     text: sectionText.toUpperCase()
     color: Qt.darker(root.contentForeground, 1.45)
     font.family: root.contentFontFamily
-    font.pixelSize: Style.font.bodySmall
+    font.pixelSize: Style.font.bodySmall + 2
     font.letterSpacing: 1.1
   }
 
@@ -115,10 +150,10 @@ Panel {
       width: Style.space(118)
       anchors.left: parent.left
       anchors.verticalCenter: parent.verticalCenter
-      text: entry.label || ""
+      text: root.sanskritLabel(entry.label || "")
       color: Qt.darker(root.contentForeground, 1.25)
       font.family: root.contentFontFamily
-      font.pixelSize: Style.font.bodySmall
+      font.pixelSize: Style.font.bodySmall + 2
     }
     Text {
       id: valueText
@@ -129,7 +164,7 @@ Panel {
       text: (entry.devanagari ? entry.devanagari + " · " : "") + (entry.value || "—")
       color: root.contentForeground
       font.family: root.contentFontFamily
-      font.pixelSize: Style.font.body
+      font.pixelSize: Style.font.body + 2
       elide: Text.ElideRight
     }
     Text {
@@ -139,7 +174,7 @@ Panel {
       text: entry.ends ? "to " + root.timeAt(entry.ends) : ""
       color: Qt.darker(root.contentForeground, 1.55)
       font.family: root.contentFontFamily
-      font.pixelSize: Style.font.bodySmall
+      font.pixelSize: Style.font.bodySmall + 1
     }
   }
 
@@ -486,11 +521,11 @@ Panel {
             horizontalAlignment: Text.AlignHCenter
             visible: root.viewMode === "panchang" && root.panchangData.status === "ok"
             text: root.panchangData.status === "ok"
-              ? root.panchangValue("Māsa") + " · " + root.panchangValue("Pakṣa") + " Pakṣa · " + root.tithiWithoutPaksha()
+              ? root.panchangDevanagariValue("Māsa") + " · " + root.panchangDevanagariValue("Pakṣa") + " · " + root.panchangDevanagariValue("Tithi")
               : ""
             color: root.contentForeground
             font.family: root.contentFontFamily
-            font.pixelSize: Style.font.subtitle
+            font.pixelSize: Style.font.subtitle + 2
             font.bold: true
           }
           Text {
@@ -502,7 +537,7 @@ Panel {
               : ""
             color: Color.accent
             font.family: root.contentFontFamily
-            font.pixelSize: Style.font.body
+            font.pixelSize: Style.font.body + 2
           }
 
           Row {
@@ -531,7 +566,7 @@ Panel {
             visible: root.viewMode === "panchang" && root.panchangData.status === "ok"
             width: parent.width
             spacing: Style.space(4)
-            SectionLabel { sectionText: "Pañcāṅga · Lahiri / Chitrapakṣa" }
+            SectionLabel { sectionText: "पञ्चाङ्ग · लाहिरी / चित्रपक्ष" }
             Repeater {
               model: root.panchangData.status === "ok" ? root.panchangData.panchang : []
               delegate: DetailRow { entry: modelData }
@@ -543,7 +578,7 @@ Panel {
               && root.panchangData.solar_lunar && root.panchangData.solar_lunar.positions
             width: parent.width
             spacing: Style.space(5)
-            SectionLabel { sectionText: "Solar · lunar · terra cycles" }
+            SectionLabel { sectionText: "सौर · चान्द्र · पृथ्वी चक्र" }
 
             Item {
               width: parent.width
@@ -598,14 +633,14 @@ Panel {
                   }
                   Text {
                     width: parent.width
-                    text: "Current Saura Māsa · " + root.panchangValue("Saura māsa")
+                    text: "सौर मास · " + root.panchangDevanagariValue("Saura māsa")
                     color: Color.accent
                     font.family: root.contentFontFamily
                     font.pixelSize: Style.font.caption
                   }
                   Text {
                     width: parent.width
-                    text: "Current Nakṣatra · " + root.panchangValue("Nakṣatra") + "  ·  P./U. = Pūrvā/Uttarā"
+                    text: "नक्षत्र · " + root.panchangDevanagariValue("Nakṣatra") + "  ·  P./U. = Pūrvā/Uttarā"
                     color: Qt.darker(root.contentForeground, 1.30)
                     font.family: root.contentFontFamily
                     font.pixelSize: Style.font.caption
@@ -628,7 +663,7 @@ Panel {
             visible: root.viewMode === "panchang" && root.panchangData.status === "ok"
             width: parent.width
             spacing: Style.space(4)
-            SectionLabel { sectionText: "Solar & lunar" }
+            SectionLabel { sectionText: "सूर्य · चन्द्र" }
             DetailRow { entry: ({ label: "Sūryodaya", value: root.panchangData.status === "ok" ? root.timeAt(root.panchangData.solar_lunar.sunrise) : "" }) }
             DetailRow { entry: ({ label: "Sūryāsta", value: root.panchangData.status === "ok" ? root.timeAt(root.panchangData.solar_lunar.sunset) : "" }) }
             DetailRow { entry: ({ label: "Candrodaya", value: root.panchangData.status === "ok" ? root.timeAt(root.panchangData.solar_lunar.moonrise) : "" }) }
@@ -641,7 +676,7 @@ Panel {
             visible: root.viewMode === "panchang" && root.panchangData.status === "ok"
             width: parent.width
             spacing: Style.space(4)
-            SectionLabel { sectionText: "Daily windows" }
+            SectionLabel { sectionText: "दैनिक काल-विभाग" }
             DetailRow { entry: ({ label: "Rāhu Kāla", value: root.panchangData.status === "ok" ? root.interval(root.panchangData.muhurta.rahu_kalam) : "" }) }
             DetailRow { entry: ({ label: "Yamaganda", value: root.panchangData.status === "ok" ? root.interval(root.panchangData.muhurta.yamaganda) : "" }) }
             DetailRow { entry: ({ label: "Gulika Kāla", value: root.panchangData.status === "ok" ? root.interval(root.panchangData.muhurta.gulika_kalam) : "" }) }
@@ -653,7 +688,7 @@ Panel {
             visible: root.viewMode === "panchang" && root.panchangData.status === "ok" && root.panchangData.traditional_time !== null
             width: parent.width
             spacing: Style.space(4)
-            SectionLabel { sectionText: "Traditional time" }
+            SectionLabel { sectionText: "पारम्परिक काल" }
             DetailRow { entry: ({ label: "Prahara", value: root.panchangData.status === "ok" ? root.panchangData.traditional_time.prahara + " of 8" : "" }) }
             DetailRow { entry: ({ label: "Muhūrta", value: root.panchangData.status === "ok" ? root.panchangData.traditional_time.muhurta + " of 30" : "" }) }
             DetailRow { entry: ({ label: "Ghaṭī · Kalā", value: root.panchangData.status === "ok" ? root.panchangData.traditional_time.ghati + " · " + root.panchangData.traditional_time.kala : "" }) }

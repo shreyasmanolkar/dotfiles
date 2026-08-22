@@ -46,6 +46,10 @@ class PanchangTests(unittest.TestCase):
         self.assertEqual(field(report, "Māsa"), "Śrāvaṇa")
         self.assertEqual(report["solar_lunar"]["sunrise"], "2026-08-22T05:19+05:30")
         self.assertEqual(report["solar_lunar"]["sunset"], "2026-08-22T17:59+05:30")
+        self.assertEqual(next(item for item in report["panchang"] if item["label"] == "Nakṣatra")["devanagari"], "ज्येष्ठा")
+        self.assertEqual(next(item for item in report["panchang"] if item["label"] == "Yoga")["devanagari"], "विष्कम्भ")
+        self.assertEqual(next(item for item in report["panchang"] if item["label"] == "Māsa")["devanagari"], "श्रावण")
+        self.assertEqual(next(item for item in report["panchang"] if item["label"] == "Saura māsa")["devanagari"], "सिंह")
 
     def test_vikram_samvat_does_not_use_a_flat_year_offset(self) -> None:
         before = build("2026-03-19T06:52:00+05:30")

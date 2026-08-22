@@ -16,6 +16,7 @@ Clicking it opens two switchable views: **Pañcāṅga** and a familiar **Gregor
 
 - Gregorian date, local time, IANA time zone, configured place, and Vikrama Saṁvat year;
 - Vāra, Tithi, Pakṣa, Nakṣatra, Yoga, Karaṇa, lunar Māsa, and sidereal solar Māsa;
+- Pañcāṅga field names are shown in Sanskrit Devanāgarī (वार, तिथि, पक्ष, नक्षत्र, योग, करण, मास), while calculated values retain transliteration alongside Devanāgarī where available;
 - a live vector cycle diagram showing the schematic annual Pṛthvī position, Candra around Pṛthvī, 27 nakṣatra divisions, and the current illuminated lunar phase;
 - sunrise/sunset, moonrise/moonset, illumination estimate, and next Saṅkrānti;
 - Rāhu Kāla, Yamaganda, Gulika Kāla, Abhijit Muhūrta, and Brahma Muhūrta;
