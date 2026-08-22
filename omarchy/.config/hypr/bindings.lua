@@ -25,6 +25,27 @@ for _, keys in ipairs(conflicting_bindings) do
   hl.unbind(keys)
 end
 
+-- Omarchy already binds SUPER + CTRL + X to `voxtype record toggle`.  These
+-- submaps are active only while VoiceType is recording/transcribing or
+-- injecting its result.  They prevent the still-held Ctrl/Super keys from
+-- turning the dictated text into Hyprland shortcuts.
+hl.define_submap("voxtype_recording", function()
+  hl.bind("F12", hl.dsp.exec_cmd("voxtype record cancel"))
+  hl.bind("F12", hl.dsp.submap("reset"))
+end)
+
+hl.define_submap("voxtype_suppress", function()
+  for _, key in ipairs({
+    "SUPER_L", "SUPER_R", "Control_L", "Control_R",
+    "Alt_L", "Alt_R", "Shift_L", "Shift_R",
+  }) do
+    hl.bind(key, function() end)
+  end
+
+  -- Emergency exit if VoiceType is interrupted while preparing output.
+  hl.bind("F12", hl.dsp.submap("reset"))
+end)
+
 -- Applications.
 o.bind("SUPER + RETURN", "Terminal", "omarchy-launch-terminal")
 o.bind("SUPER + T", "File manager", { omarchy = "nautilus" })

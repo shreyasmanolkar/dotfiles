@@ -1,0 +1,46 @@
+# VoiceType: local toggle dictation for Hyprland / Omarchy.
+# Ctrl+Super+X is provided by Omarchy and runs `voxtype record toggle`.
+
+# Required for `voxtype record toggle` to communicate with the daemon.
+state_file = "auto"
+
+[hotkey]
+# Hyprland owns the global shortcut; VoiceType's evdev hotkey stays disabled.
+enabled = false
+
+[audio]
+device = "default"
+sample_rate = 16000
+max_duration_secs = 60
+
+[audio.feedback]
+# Audible start/stop confirmation makes the toggle workflow clear.
+enabled = true
+theme = "subtle"
+volume = 0.7
+
+[whisper]
+# This multilingual model is already installed locally.
+model = "small"
+language = "auto"
+translate = false
+on_demand_loading = false
+
+[output]
+# Insert the transcription at the focused text cursor with wtype.  If an app
+# does not accept virtual-keyboard input, retain the result in the clipboard.
+mode = "type"
+fallback_to_clipboard = true
+pre_type_delay_ms = 100
+wait_for_modifier_release = true
+
+# Ctrl+Super+X contains two modifiers.  These hooks activate the Hyprland
+# submaps in bindings.lua so late key releases cannot trigger shortcuts.
+pre_recording_command = "hyprctl dispatch submap voxtype_recording"
+pre_output_command = "hyprctl dispatch submap voxtype_suppress"
+post_output_command = "hyprctl dispatch submap reset"
+
+[output.notification]
+on_recording_start = true
+on_recording_stop = true
+on_transcription = true
