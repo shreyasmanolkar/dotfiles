@@ -1,31 +1,26 @@
-# If not running interactively, don't do anything (leave this at the top of this file)
+# Omarchy environment (OMARCHY_PATH + PATH), needed for login and non-interactive shells.
+[[ -r /usr/share/omarchy/default/bash/env-bootstrap ]] && source /usr/share/omarchy/default/bash/env-bootstrap
+
+# Leave non-interactive shells with the Omarchy environment only.
 [[ $- != *i* ]] && return
 
-# All the default Omarchy aliases and functions
-# (don't mess with these directly, just overwrite them here!)
-source ~/.local/share/omarchy/default/bash/rc
+# All the default Omarchy aliases and functions.
+source "$OMARCHY_PATH/default/bash/rc"
 
-# Add your own exports, aliases, and functions here.
-#
-# Make an alias for invoking commands you use constantly
-# alias p='python'
-
-#function cursor() {
-#    { exec setsid cursor "$@" > /dev/null 2>&1 & } 2>/dev/null
-#    disown
-#}
-
+# Open Cursor using the local AppImage when present, otherwise use the installed command.
 cursor() {
-  ~/Applications/cursor.AppImage "$@" &
+  if [[ -x "$HOME/Applications/cursor.AppImage" ]]; then
+    "$HOME/Applications/cursor.AppImage" "$@" &
+  else
+    command cursor "$@"
+  fi
 }
 
-# ============================================
-# Copy current directory path to clipboard
-# ============================================
+# Copy the current directory path to the clipboard.
 copy_path() {
     local path
     path=$(pwd)
-    
+
     if command -v wl-copy >/dev/null 2>&1; then
         printf '%s' "$path" | wl-copy
         printf '✓ Copied to clipboard (Wayland): %s\n' "$path"
@@ -37,9 +32,6 @@ copy_path() {
         printf '✓ Copied to clipboard (macOS): %s\n' "$path"
     else
         printf '⚠ No clipboard utility found.\n'
-        printf 'Install with:\n'
-        printf '  sudo apt install xclip          # for X11\n'
-        printf '  sudo apt install wl-clipboard   # for Wayland\n\n'
         printf 'Current path: %s\n' "$path"
     fi
 }
@@ -54,40 +46,20 @@ alias nrs='npm run start'
 alias nrb='npm run build'
 alias cpwd='copy_path'
 
-# if command -v tmux &> /dev/null && [ -n "$PS1" ] && [[ ! "$TERM" =~ screen ]] && [[ ! "$TERM" =~ tmux ]] && [ -z "$TMUX" ]; then
-#   exec tmux
+# Keep tmux opt-in; enable the old auto-attach behavior by setting TMUX_AUTO yourself.
+# if command -v tmux >/dev/null && [[ -n "$TMUX_AUTO" ]] && [[ -z "$TMUX" ]]; then
+#   tmux has-session -t main 2>/dev/null && exec tmux attach -t main || exec tmux new -s main
 # fi
 
-# Auto-start/attach tmux for interactive shells
-# Set TMUX_AUTO=1 to enable (exported by default below)
-# if command -v tmux &> /dev/null && [ -n "$PS1" ] && [[ ! "$TERM" =~ screen ]] && [[ ! "$TERM" =~ tmux ]] && [ -z "$TMUX" ] && [ -n "$TMUX_AUTO" ]; then
-#   # Reuse a session if it exists; otherwise create one named "main"
-#   if tmux has-session -t main 2>/dev/null; then
-#     exec tmux attach -t main
-#   else
-#     exec tmux new -s main
-#   fi
-# fi
-
-# export TMUX_AUTO=1
-
-# Enable auto-attach by default; comment this out if you don’t want it
-# Set the history file location
-HISTFILE=~/.bash_history
-
-# Number of commands to keep in memory for the current session
+HISTFILE="$HOME/.bash_history"
 HISTSIZE=10000
-
-# Maximum number of lines in the history file
 HISTFILESIZE=10000
-
-# Append to the history file instead of overwriting it on shell exit
 shopt -s histappend
-
 set -h
+
 export NVM_DIR="$HOME/.config/nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
 
 export PATH="$HOME/.local/bin:$PATH"
 
