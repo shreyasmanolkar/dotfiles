@@ -88,6 +88,26 @@ def fmt_num(value: float, precision: int = 2) -> float:
     return round(float(value), precision)
 
 
+def lunar_phase_name(phase: float) -> str:
+    """Return the familiar eight-part phase name for an elongation angle."""
+    angle = normalize(phase)
+    if angle < 22.5 or angle >= 337.5:
+        return "New Moon"
+    if angle < 67.5:
+        return "Waxing Crescent"
+    if angle < 112.5:
+        return "First Quarter"
+    if angle < 157.5:
+        return "Waxing Gibbous"
+    if angle < 202.5:
+        return "Full Moon"
+    if angle < 247.5:
+        return "Waning Gibbous"
+    if angle < 292.5:
+        return "Last Quarter"
+    return "Waning Crescent"
+
+
 def local_iso(moment: datetime) -> str:
     return moment.isoformat(timespec="minutes")
 
@@ -192,6 +212,11 @@ class PanchangEngine:
 
     def longitude(self, jd: float, body: int) -> float:
         return normalize(swe.calc_ut(jd, body, self.flags)[0][0])
+
+    def tropical_longitude(self, jd: float, body: int) -> float:
+        """Geocentric tropical ecliptic longitude used by the cycle diagram."""
+        flags = swe.FLG_SWIEPH | swe.FLG_SPEED
+        return normalize(swe.calc_ut(jd, body, flags)[0][0])
 
     def positions(self, jd: float) -> tuple[float, float]:
         return self.longitude(jd, swe.SUN), self.longitude(jd, swe.MOON)
@@ -391,6 +416,8 @@ class PanchangEngine:
         jd = utc_julian(local_now)
         sun, moon = self.positions(jd)
         phase = normalize(moon - sun)
+        tropical_sun = self.tropical_longitude(jd, swe.SUN)
+        tropical_moon = self.tropical_longitude(jd, swe.MOON)
         tithi_index = int(phase // TITHI_SPAN)
         paksha = "Śukla" if tithi_index < 15 else "Kṛṣṇa"
         nak_index = int(moon // NAKSHATRA_SPAN)
@@ -470,7 +497,22 @@ class PanchangEngine:
             "solar_lunar": {
                 "sunrise": local_iso(sunrise), "sunset": local_iso(sunset), "next_sunrise": local_iso(next_sunrise),
                 "moonrise": local_iso(moonrise) if moonrise else None, "moonset": local_iso(moonset) if moonset else None,
-                "phase_degrees": fmt_num(phase), "illumination_approx": fmt_num((1 - math.cos(math.radians(phase))) / 2 * 100, 1),
+                "phase_degrees": fmt_num(phase),
+                "phase_name": lunar_phase_name(phase),
+                "phase_age_approx_days": fmt_num(phase / DEGREE * 29.530588853, 1),
+                "waxing": phase < 180.0,
+                "illumination_approx": fmt_num((1 - math.cos(math.radians(phase))) / 2 * 100, 1),
+                "positions": {
+                    "sun_sidereal_degrees": fmt_num(sun),
+                    "moon_sidereal_degrees": fmt_num(moon),
+                    "sun_tropical_degrees": fmt_num(tropical_sun),
+                    "moon_tropical_degrees": fmt_num(tropical_moon),
+                    # In a heliocentric annual-cycle sketch, Earth lies opposite
+                    # the apparent geocentric Sun.  This is deliberately not a
+                    # claim about orbital distance or true anomaly.
+                    "earth_orbit_degrees": fmt_num(normalize(tropical_sun + 180.0)),
+                    "reference": "Geocentric ecliptic longitudes; annual Earth marker is schematic",
+                },
                 "sankranti": {"name": f"{SOLAR_RASIS[next_sign]} Saṅkrānti", "at": local_iso(next_sankranti)},
             },
             "muhurta": {

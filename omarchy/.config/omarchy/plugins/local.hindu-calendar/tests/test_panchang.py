@@ -81,6 +81,27 @@ class PanchangTests(unittest.TestCase):
         self.assertNotEqual(kolkata["solar_lunar"]["sunrise"], london["solar_lunar"]["sunrise"])
         self.assertNotEqual(kolkata["muhurta"]["rahu_kalam"], london["muhurta"]["rahu_kalam"])
 
+    def test_visual_cycle_data_is_bounded_and_internally_consistent(self) -> None:
+        report = build("2026-08-22T12:00:00+05:30")
+        cycle = report["solar_lunar"]
+        positions = cycle["positions"]
+        self.assertIn(cycle["phase_name"], {
+            "New Moon", "Waxing Crescent", "First Quarter", "Waxing Gibbous",
+            "Full Moon", "Waning Gibbous", "Last Quarter", "Waning Crescent",
+        })
+        self.assertGreaterEqual(cycle["illumination_approx"], 0)
+        self.assertLessEqual(cycle["illumination_approx"], 100)
+        self.assertGreaterEqual(cycle["phase_age_approx_days"], 0)
+        self.assertLess(cycle["phase_age_approx_days"], 29.6)
+        for key in (
+            "sun_sidereal_degrees", "moon_sidereal_degrees", "sun_tropical_degrees",
+            "moon_tropical_degrees", "earth_orbit_degrees",
+        ):
+            self.assertGreaterEqual(positions[key], 0)
+            self.assertLess(positions[key], 360)
+        expected_earth = (positions["sun_tropical_degrees"] + 180) % 360
+        self.assertAlmostEqual(positions["earth_orbit_degrees"], expected_earth, places=2)
+
     def test_missing_coordinates_are_rejected_without_fabricated_data(self) -> None:
         raw = json.loads(FIXTURE.read_text(encoding="utf-8"))
         raw["location"]["latitude"] = None

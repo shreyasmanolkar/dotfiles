@@ -16,6 +16,7 @@ Clicking it opens two switchable views: **Pañcāṅga** and a familiar **Gregor
 
 - Gregorian date, local time, IANA time zone, configured place, and Vikrama Saṁvat year;
 - Vāra, Tithi, Pakṣa, Nakṣatra, Yoga, Karaṇa, lunar Māsa, and sidereal solar Māsa;
+- a live vector cycle diagram showing the schematic annual Pṛthvī position, Candra around Pṛthvī, 27 nakṣatra divisions, and the current illuminated lunar phase;
 - sunrise/sunset, moonrise/moonset, illumination estimate, and next Saṅkrānti;
 - Rāhu Kāla, Yamaganda, Gulika Kāla, Abhijit Muhūrta, and Brahma Muhūrta;
 - optional sunrise-proportional Prahara, Muhūrta, Ghaṭī, Kalā, and Kāṣṭhā.
@@ -103,6 +104,7 @@ Astronomical inputs are calculated locally with the pinned [`pyswisseph`](https:
 
 - **Tithi:** Moon–Sun sidereal elongation in 12° increments; **Karaṇa:** its 6° half.
 - **Nakṣatra:** sidereal lunar longitude in 27 equal 13°20′ arcs.
+- **Cycle diagram:** its Sun/Moon markers use the calculated ecliptic longitudes and the active outer tick is the current Lahiri nakṣatra division. The annual Pṛthvī marker is the apparent tropical Sun plus 180°, an explanatory heliocentric orientation—not a scaled orbit or a three-dimensional sky map. The lunar disc is drawn from Moon–Sun elongation, with approximate illumination `(1 − cos(elongation)) / 2`; its “day” is a phase-angle projection onto the mean 29.530588853-day synodic month.
 - **Yoga:** normalized sum of sidereal Sun and Moon longitudes in the same 27 arcs.
 - **Māsa:** new-moon-bound lunar month. It detects an **Adhika Māsa** when the Sun stays in one sidereal sign across two successive new moons. The Pūrṇimānta option assigns the Kṛṣṇa half to the following named month.
 - **Vikrama Saṁvat:** the engine calculates the selected local Caitra or Kārtika new-moon boundary for that Gregorian year. It does not use a universal `Gregorian year + 57` shortcut.

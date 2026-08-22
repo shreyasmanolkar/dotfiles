@@ -143,6 +143,199 @@ Panel {
     }
   }
 
+  // A deliberately schematic, data-driven cycle view.  It repaints only when
+  // the cached ephemeris values or theme colours change; the minute clock does
+  // not trigger any canvas animation or astronomy work.
+  component OrbitDiagram: Canvas {
+    property real earthLongitude: 0
+    property real phaseDegrees: 0
+    property real moonSidereal: 0
+    property real sunSidereal: 0
+    property color foreground: root.contentForeground
+    property color accent: Color.accent
+
+    onEarthLongitudeChanged: requestPaint()
+    onPhaseDegreesChanged: requestPaint()
+    onMoonSiderealChanged: requestPaint()
+    onSunSiderealChanged: requestPaint()
+    onForegroundChanged: requestPaint()
+    onAccentChanged: requestPaint()
+    onWidthChanged: requestPaint()
+    onHeightChanged: requestPaint()
+    Component.onCompleted: requestPaint()
+
+    onPaint: {
+      var ctx = getContext("2d")
+      ctx.clearRect(0, 0, width, height)
+      var cx = width * 0.48
+      var cy = height * 0.51
+      var rx = Math.max(70, width * 0.40)
+      var ry = Math.max(42, height * 0.34)
+      var fg = String(foreground)
+      var hi = String(accent)
+      var tau = Math.PI * 2
+
+      function point(angle, radialScale) {
+        var a = angle * Math.PI / 180 - Math.PI / 2
+        return { x: cx + rx * radialScale * Math.cos(a), y: cy + ry * radialScale * Math.sin(a) }
+      }
+      function ellipse(stroke, alpha, lineWidth) {
+        ctx.save()
+        ctx.translate(cx, cy)
+        ctx.scale(rx, ry)
+        ctx.beginPath()
+        ctx.arc(0, 0, 1, 0, tau)
+        ctx.restore()
+        ctx.globalAlpha = alpha
+        ctx.strokeStyle = stroke
+        ctx.lineWidth = lineWidth
+        ctx.stroke()
+        ctx.globalAlpha = 1
+      }
+      function circle(x, y, radius, fill, stroke) {
+        ctx.beginPath()
+        ctx.arc(x, y, radius, 0, tau)
+        ctx.fillStyle = fill
+        ctx.fill()
+        if (stroke) {
+          ctx.strokeStyle = stroke
+          ctx.lineWidth = 1
+          ctx.stroke()
+        }
+      }
+
+      // Outer annual path, twelve solar-month ticks, and the 27 equal
+      // nakṣatra reference divisions.  The active lunar division is accented.
+      ellipse(fg, 0.24, 1)
+      var activeNakshatra = Math.floor((((moonSidereal % 360) + 360) % 360) / (360 / 27))
+      for (var index = 0; index < 27; index++) {
+        var angle = index * 360 / 27
+        var inner = point(angle, index === activeNakshatra ? 0.89 : 0.94)
+        var outer = point(angle, 1.02)
+        ctx.beginPath()
+        ctx.moveTo(inner.x, inner.y)
+        ctx.lineTo(outer.x, outer.y)
+        ctx.strokeStyle = index === activeNakshatra ? hi : fg
+        ctx.globalAlpha = index === activeNakshatra ? 1 : 0.24
+        ctx.lineWidth = index === activeNakshatra ? 2.5 : 1
+        ctx.stroke()
+      }
+      ctx.globalAlpha = 1
+      for (var solarIndex = 0; solarIndex < 12; solarIndex++) {
+        var solarAngle = solarIndex * 30
+        var solarInner = point(solarAngle, 0.86)
+        var solarOuter = point(solarAngle, 1.0)
+        ctx.beginPath()
+        ctx.moveTo(solarInner.x, solarInner.y)
+        ctx.lineTo(solarOuter.x, solarOuter.y)
+        ctx.strokeStyle = fg
+        ctx.globalAlpha = 0.42
+        ctx.lineWidth = 1
+        ctx.stroke()
+      }
+      ctx.globalAlpha = 1
+
+      var earth = point(earthLongitude, 0.78)
+      var earthAngle = earthLongitude * Math.PI / 180 - Math.PI / 2
+      var moonAngle = earthAngle + Math.PI + phaseDegrees * Math.PI / 180
+      var moonRadius = Math.max(16, Math.min(width, height) * 0.105)
+      var moon = {
+        x: earth.x + moonRadius * Math.cos(moonAngle),
+        y: earth.y + moonRadius * 0.68 * Math.sin(moonAngle)
+      }
+
+      ctx.beginPath()
+      ctx.moveTo(cx, cy)
+      ctx.lineTo(earth.x, earth.y)
+      ctx.lineTo(moon.x, moon.y)
+      ctx.strokeStyle = fg
+      ctx.globalAlpha = 0.20
+      ctx.lineWidth = 1
+      ctx.stroke()
+      ctx.globalAlpha = 1
+
+      circle(cx, cy, 11, "#f6c453", "#ffe49b")
+      circle(earth.x, earth.y, 7, hi, fg)
+      circle(moon.x, moon.y, 3.5, "#e8edf2", fg)
+
+      ctx.font = "600 9px sans-serif"
+      ctx.fillStyle = fg
+      ctx.globalAlpha = 0.78
+      ctx.textAlign = "center"
+      ctx.fillText("SŪRYA", cx, cy + 25)
+      ctx.fillText("PṚTHVĪ", earth.x, earth.y + 19)
+      ctx.fillText("CANDRA", moon.x, moon.y - 10)
+      ctx.font = "8px sans-serif"
+      ctx.globalAlpha = 0.48
+      ctx.fillText("27 NAKṢATRA DIVISIONS", cx, height - 3)
+      ctx.globalAlpha = 1
+    }
+  }
+
+  component MoonPhaseDiagram: Canvas {
+    property real phaseDegrees: 0
+    property color foreground: root.contentForeground
+    property color accent: Color.accent
+
+    onPhaseDegreesChanged: requestPaint()
+    onForegroundChanged: requestPaint()
+    onAccentChanged: requestPaint()
+    onWidthChanged: requestPaint()
+    onHeightChanged: requestPaint()
+    Component.onCompleted: requestPaint()
+
+    onPaint: {
+      var ctx = getContext("2d")
+      ctx.clearRect(0, 0, width, height)
+      var cx = width / 2
+      var cy = height / 2
+      var radius = Math.max(8, Math.min(width, height) / 2 - 2)
+      var phase = ((phaseDegrees % 360) + 360) % 360
+      var waxing = phase < 180
+      var steps = 36
+
+      ctx.beginPath()
+      ctx.arc(cx, cy, radius, 0, Math.PI * 2)
+      ctx.fillStyle = "#11151a"
+      ctx.fill()
+
+      // Sample the terminator.  This gives the correct illuminated fraction
+      // at new, quarter and full phases without storing bitmap assets.
+      ctx.beginPath()
+      for (var index = 0; index <= steps; index++) {
+        var dy = -radius + 2 * radius * index / steps
+        var halfWidth = Math.sqrt(Math.max(0, radius * radius - dy * dy))
+        var boundary = waxing
+          ? cx + Math.cos(phase * Math.PI / 180) * halfWidth
+          : cx - Math.cos(phase * Math.PI / 180) * halfWidth
+        if (index === 0) ctx.moveTo(boundary, cy + dy)
+        else ctx.lineTo(boundary, cy + dy)
+      }
+      if (waxing) {
+        for (var rightIndex = 0; rightIndex <= steps; rightIndex++) {
+          var rightAngle = Math.PI / 2 - Math.PI * rightIndex / steps
+          ctx.lineTo(cx + radius * Math.cos(rightAngle), cy + radius * Math.sin(rightAngle))
+        }
+      } else {
+        for (var leftIndex = 0; leftIndex <= steps; leftIndex++) {
+          var leftAngle = Math.PI / 2 + Math.PI * leftIndex / steps
+          ctx.lineTo(cx + radius * Math.cos(leftAngle), cy + radius * Math.sin(leftAngle))
+        }
+      }
+      ctx.closePath()
+      ctx.fillStyle = "#edf0d0"
+      ctx.fill()
+
+      ctx.beginPath()
+      ctx.arc(cx, cy, radius, 0, Math.PI * 2)
+      ctx.strokeStyle = String(accent)
+      ctx.globalAlpha = 0.82
+      ctx.lineWidth = 1.5
+      ctx.stroke()
+      ctx.globalAlpha = 1
+    }
+  }
+
   component ViewButton: Item {
     property string label: ""
     property string mode: ""
@@ -294,6 +487,86 @@ Panel {
 
           Column {
             visible: root.viewMode === "panchang" && root.panchangData.status === "ok"
+              && root.panchangData.solar_lunar && root.panchangData.solar_lunar.positions
+            width: parent.width
+            spacing: Style.space(5)
+            SectionLabel { sectionText: "Solar · lunar · terra cycles" }
+
+            Item {
+              width: parent.width
+              height: Style.space(188)
+
+              OrbitDiagram {
+                id: orbitDiagram
+                anchors.left: parent.left
+                anchors.top: parent.top
+                width: parent.width - Style.space(142)
+                height: parent.height
+                earthLongitude: root.panchangData.status === "ok" && root.panchangData.solar_lunar.positions
+                  ? root.panchangData.solar_lunar.positions.earth_orbit_degrees : 0
+                phaseDegrees: root.panchangData.status === "ok" ? root.panchangData.solar_lunar.phase_degrees : 0
+                moonSidereal: root.panchangData.status === "ok" && root.panchangData.solar_lunar.positions
+                  ? root.panchangData.solar_lunar.positions.moon_sidereal_degrees : 0
+                sunSidereal: root.panchangData.status === "ok" && root.panchangData.solar_lunar.positions
+                  ? root.panchangData.solar_lunar.positions.sun_sidereal_degrees : 0
+              }
+
+              Column {
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                width: Style.space(132)
+                spacing: Style.space(4)
+
+                MoonPhaseDiagram {
+                  anchors.horizontalCenter: parent.horizontalCenter
+                  width: Style.space(72)
+                  height: width
+                  phaseDegrees: root.panchangData.status === "ok" ? root.panchangData.solar_lunar.phase_degrees : 0
+                }
+                Text {
+                  width: parent.width
+                  horizontalAlignment: Text.AlignHCenter
+                  wrapMode: Text.WordWrap
+                  text: root.panchangData.status === "ok" ? root.panchangData.solar_lunar.phase_name : ""
+                  color: root.contentForeground
+                  font.family: root.contentFontFamily
+                  font.pixelSize: Style.font.bodySmall
+                  font.bold: true
+                }
+                Text {
+                  width: parent.width
+                  horizontalAlignment: Text.AlignHCenter
+                  text: root.panchangData.status === "ok"
+                    ? root.panchangData.solar_lunar.illumination_approx + "% lit · day ~" + root.panchangData.solar_lunar.phase_age_approx_days
+                    : ""
+                  color: Qt.darker(root.contentForeground, 1.35)
+                  font.family: root.contentFontFamily
+                  font.pixelSize: Style.font.caption
+                }
+                Text {
+                  width: parent.width
+                  horizontalAlignment: Text.AlignHCenter
+                  wrapMode: Text.WordWrap
+                  text: root.panchangValue("Saura māsa") + " · " + root.panchangValue("Nakṣatra")
+                  color: Color.accent
+                  font.family: root.contentFontFamily
+                  font.pixelSize: Style.font.caption
+                }
+              }
+            }
+
+            Text {
+              width: parent.width
+              wrapMode: Text.WordWrap
+              text: "Ecliptic schematic, not to scale. Pṛthvī’s annual marker is opposite the apparent tropical Sun; the highlighted outer tick is Candra’s current Lahiri nakṣatra division."
+              color: Qt.darker(root.contentForeground, 1.55)
+              font.family: root.contentFontFamily
+              font.pixelSize: Style.font.caption
+            }
+          }
+
+          Column {
+            visible: root.viewMode === "panchang" && root.panchangData.status === "ok"
             width: parent.width
             spacing: Style.space(4)
             SectionLabel { sectionText: "Solar & lunar" }
@@ -301,7 +574,7 @@ Panel {
             DetailRow { entry: ({ label: "Sūryāsta", value: root.panchangData.status === "ok" ? root.timeAt(root.panchangData.solar_lunar.sunset) : "" }) }
             DetailRow { entry: ({ label: "Candrodaya", value: root.panchangData.status === "ok" ? root.timeAt(root.panchangData.solar_lunar.moonrise) : "" }) }
             DetailRow { entry: ({ label: "Candrāsta", value: root.panchangData.status === "ok" ? root.timeAt(root.panchangData.solar_lunar.moonset) : "" }) }
-            DetailRow { entry: ({ label: "Moon phase", value: root.panchangData.status === "ok" ? root.panchangData.solar_lunar.illumination_approx + "% illuminated" : "" }) }
+            DetailRow { entry: ({ label: "Moon phase", value: root.panchangData.status === "ok" ? root.panchangData.solar_lunar.phase_name + " · " + root.panchangData.solar_lunar.illumination_approx + "% illuminated" : "" }) }
             DetailRow { entry: ({ label: "Saṅkrānti", value: root.panchangData.status === "ok" ? root.panchangData.solar_lunar.sankranti.name + " · " + root.timeAt(root.panchangData.solar_lunar.sankranti.at) : "" }) }
           }
 
