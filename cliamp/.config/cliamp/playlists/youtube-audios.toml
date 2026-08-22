@@ -1,0 +1,29 @@
+# Local music files from /home/shreyas/Music.
+
+[[track]]
+path = "/home/shreyas/Music/dune-arrakis-outpost.mp3"
+title = "Dune — Arrakis Outpost"
+
+[[track]]
+path = "/home/shreyas/Music/dune-future.mp3"
+title = "Dune — Future"
+
+[[track]]
+path = "/home/shreyas/Music/dunkirk.mp3"
+title = "Dunkirk"
+
+[[track]]
+path = "/home/shreyas/Music/gladiator.mp3"
+title = "Gladiator"
+
+[[track]]
+path = "/home/shreyas/Music/interstellar.mp3"
+title = "Interstellar"
+
+[[track]]
+path = "/home/shreyas/Music/ludovico-einaudi-experience.mp3"
+title = "Ludovico Einaudi — Experience"
+
+[[track]]
+path = "/home/shreyas/Music/tenet.mp3"
+title = "Tenet"
