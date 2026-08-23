@@ -20,7 +20,10 @@ BarWidget {
   readonly property bool playing: player.available && player.state === "playing"
   readonly property bool paused: player.available && player.state === "paused"
   readonly property string stateIcon: playing ? "▶" : (paused ? "Ⅱ" : "♫")
-  readonly property string barText: vertical ? stateIcon : stateIcon + " " + CliampModel.compact(player.title, 30)
+  // A fixed bar slot means neither a longer track name nor the play/pause
+  // glyph can shift the widgets that follow this controller.
+  readonly property real barSlotWidth: Style.space(190)
+  readonly property string barText: vertical ? stateIcon : stateIcon + " " + CliampModel.compact(player.title, 20)
   readonly property string tooltipText: player.available
     ? player.title + " — " + player.artist
       + "\nLeft click: controls · Middle: play/pause · Right: ensure background player"
@@ -28,7 +31,7 @@ BarWidget {
 
   readonly property bool opened: panelLoader.item ? panelLoader.item.opened === true : false
   readonly property bool popoutSwitchClosing: panelLoader.item ? panelLoader.item.popoutSwitchClosing === true : false
-  readonly property real openPanelIndicatorWidth: button.labelWidth
+  readonly property real openPanelIndicatorWidth: button.width
   readonly property real openPanelIndicatorHeight: Math.max(Style.space(10), Math.round(Style.bar.iconSlot * 0.55))
 
   function setStatus(raw) {
@@ -211,6 +214,7 @@ BarWidget {
     text: root.barText
     labelVisible: true
     fontSize: Style.font.body
+    fixedWidth: root.vertical ? -1 : root.barSlotWidth
     horizontalMargin: 8.75
     verticalPadding: 7
     tooltipText: root.tooltipText

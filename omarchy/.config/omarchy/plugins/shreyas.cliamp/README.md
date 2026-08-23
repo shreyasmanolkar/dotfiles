@@ -13,6 +13,8 @@ volume, shuffle/repeat, local playlists, and source access.
 - Click anywhere on the track progress bar to seek.
 - Click a local playlist to load it; if Cliamp is offline, it starts directly
   with that playlist playing.
+- The local `youtube-audios` Cliamp identifier is shown as **Music folder**:
+  its tracks are the files under `~/Music`, not YouTube content.
 - Use the Sources section to switch the controller-owned daemon between its
   default source, radio, Spotify, and YouTube. A separately launched Cliamp
   session is left alone rather than being stopped or replaced.

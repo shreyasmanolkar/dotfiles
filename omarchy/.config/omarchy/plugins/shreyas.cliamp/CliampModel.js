@@ -69,13 +69,26 @@ function compact(text, limit) {
   return value.length > maximum ? value.slice(0, Math.max(1, maximum - 1)) + "…" : value
 }
 
+function playlistLabel(name) {
+  var value = String(name || "")
+  // This is an old Cliamp identifier, not the source of these tracks. Its
+  // TOML file contains local /home/shreyas/Music paths, so show the library
+  // users actually interact with rather than the historical file name.
+  if (value.toLowerCase() === "youtube-audios") return "Music folder"
+  return value
+}
+
 function playlistsFrom(raw) {
   var result = []
   var lines = String(raw || "").split("\n")
   for (var i = 0; i < lines.length; i++) {
     var match = lines[i].match(/^\s*(.*?)\s+(\d+)\s+tracks?\s*$/i)
     if (!match || !match[1]) continue
-    result.push({ name: match[1], trackCount: Number(match[2]) || 0 })
+    result.push({
+      name: match[1],
+      label: playlistLabel(match[1]),
+      trackCount: Number(match[2]) || 0
+    })
   }
   return result
 }

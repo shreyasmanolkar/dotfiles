@@ -88,7 +88,9 @@ Panel {
     centerOnBar: false
     focusTarget: keyCatcher
     contentWidth: panel.fittedContentWidth(Style.space(410))
-    contentHeight: panel.fittedContentHeight(content.implicitHeight, Style.space(720))
+    // The card stays the same size while track metadata and playback state
+    // change. Overflow is already handled by the Flickable below.
+    contentHeight: panel.cappedContentHeight(Style.space(650))
 
     PanelKeyCatcher {
       id: keyCatcher
@@ -147,7 +149,7 @@ Panel {
             Text {
               width: parent.width
               text: root.player.album
-              visible: text !== ""
+              height: Style.space(18)
               color: root.dim
               font.family: root.fontFamily
               font.pixelSize: Style.font.caption
@@ -312,7 +314,7 @@ Panel {
             }
             Text {
               width: parent.width
-              text: "Switch the controller's headless player between sources. A separately launched Cliamp session is never stopped or replaced."
+              text: "Play your local Music folder or switch the controller's headless player between services. A separately launched Cliamp session is never stopped or replaced."
               wrapMode: Text.WordWrap
               color: root.dim
               font.family: root.fontFamily
@@ -325,20 +327,23 @@ Panel {
               columnSpacing: Style.space(7)
               Repeater {
                 model: [
-                  { label: "Default", source: "" },
+                  { label: "Music folder", playlist: "youtube-audios" },
                   { label: "Radio", source: "radio" },
                   { label: "Spotify", source: "spotify" },
-                  { label: "YouTube", source: "youtube" }
+                  { label: "Default", source: "" }
                 ]
                 delegate: Button {
                   width: (parent.width - parent.columnSpacing) / parent.columns
                   text: modelData.label
-                  iconText: modelData.source === "" ? "⌕" : "↗"
+                  iconText: modelData.playlist ? "▶" : (modelData.source === "" ? "⌕" : "↗")
                   foreground: root.foreground
                   accent: Color.accent
                   fontFamily: root.fontFamily
                   bordered: true
-                  onClicked: root.runService("restart", modelData.source, "")
+                  onClicked: {
+                    if (modelData.playlist) root.loadPlaylist(modelData.playlist)
+                    else root.runService("restart", modelData.source, "")
+                  }
                 }
               }
             }
@@ -376,7 +381,7 @@ Panel {
               model: root.playerController ? root.playerController.playlists : []
               delegate: Button {
                 width: parent.width
-                text: modelData.name + " · " + modelData.trackCount + " track" + (modelData.trackCount === 1 ? "" : "s")
+                text: modelData.label + " · " + modelData.trackCount + " track" + (modelData.trackCount === 1 ? "" : "s")
                 iconText: "▶"
                 foreground: root.foreground
                 accent: Color.accent
