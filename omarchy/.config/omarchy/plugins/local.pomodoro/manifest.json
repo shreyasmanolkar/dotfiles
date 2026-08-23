@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "local.pomodoro",
+  "name": "Pomodoro & Murut Timer",
+  "version": "1.0.0",
+  "author": "Shreyas",
+  "description": "A compact, persistent focus timer with Pomodoro and traditional Murut presets.",
+  "kinds": ["bar-widget"],
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "Pomodoro & Murut Timer",
+    "description": "A focused top-bar timer: 25-minute Pomodoro plus 1/8 through 1 Murut (48 minutes).",
+    "category": "Time",
+    "allowMultiple": false,
+    "defaultSection": "right"
+  }
+}

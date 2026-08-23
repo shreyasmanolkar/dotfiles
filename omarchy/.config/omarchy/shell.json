@@ -15,6 +15,7 @@
       ],
       "right": [
         { "id": "omarchy.tray" },
+        { "id": "local.pomodoro" },
         { "id": "shreyas.agents" },
         { "id": "omarchy.bluetooth" },
         { "id": "omarchy.network" },
