@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "shreyas.cliamp",
+  "name": "Cliamp Controller",
+  "version": "1.2.0",
+  "author": "Shreyas",
+  "description": "Persistent Cliamp now-playing widget with transport, queue, playlist, and source controls.",
+  "kinds": ["bar-widget"],
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "Cliamp",
+    "description": "A compact Cliamp controller with one-click playback, local playlists, and source browsing.",
+    "category": "Media",
+    "aliases": ["music", "player", "cliamp"],
+    "allowMultiple": false,
+    "defaultSection": "right"
+  }
+}
