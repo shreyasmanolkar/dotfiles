@@ -127,7 +127,7 @@ Panel {
             title: root.player.available ? root.player.title : "Cliamp is offline"
             meta: root.player.available ? root.player.artist : "START OR FOCUS THE PLAYER"
             detail: root.player.available
-              ? (root.player.playlist !== "" ? root.player.playlist : root.player.state.toUpperCase())
+              ? (root.player.playlist !== "" ? CliampModel.playlistLabel(root.player.playlist) : root.player.state.toUpperCase())
               : root.player.error
             foreground: root.foreground
             fontFamily: root.fontFamily
