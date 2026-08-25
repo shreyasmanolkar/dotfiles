@@ -81,7 +81,7 @@ local webapps = {
   { "SUPER + SHIFT + CTRL + D", "Discord", "https://discord.com/channels/@me" },
   { "SUPER + SHIFT + CTRL + L", "Linear", "https://linear.app/conception/inbox" },
   { "SUPER + SHIFT + CTRL + X", "X Post", "https://x.com/compose/post" },
-  { "SUPER + SLASH", "Bitwarden", "https://vault.bitwarden.com/" },
+  { "SUPER + SHIFT + SLASH", "Bitwarden", "https://vault.bitwarden.com/" },
 }
 
 for _, app in ipairs(webapps) do
@@ -131,6 +131,7 @@ local move_bindings = {
 
 for _, binding in ipairs(move_bindings) do
   local direction, dispatcher_direction = table.unpack(binding)
+  hl.unbind("SUPER + CTRL + " .. direction)
   o.bind(
     "SUPER + CTRL + " .. direction,
     "Move window " .. direction:lower(),
