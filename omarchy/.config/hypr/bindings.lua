@@ -25,6 +25,12 @@ for _, keys in ipairs(conflicting_bindings) do
   hl.unbind(keys)
 end
 
+-- Move monitor scaling off the default slash bindings.
+hl.unbind("SUPER + SLASH")
+hl.unbind("SUPER + ALT + SLASH")
+o.bind("SUPER + CTRL + SLASH", "Monitor scaling up", "omarchy-hyprland-monitor-scaling up")
+o.bind("SUPER + CTRL + ALT + SLASH", "Monitor scaling down", "omarchy-hyprland-monitor-scaling down")
+
 -- Omarchy already binds SUPER + CTRL + X to `voxtype record toggle`.  These
 -- submaps are active only while VoiceType is recording/transcribing or
 -- injecting its result.  They prevent the still-held Ctrl/Super keys from
