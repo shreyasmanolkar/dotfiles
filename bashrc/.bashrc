@@ -1,6 +1,9 @@
 # Omarchy environment (OMARCHY_PATH + PATH), needed for login and non-interactive shells.
 [[ -r /usr/share/omarchy/default/bash/env-bootstrap ]] && source /usr/share/omarchy/default/bash/env-bootstrap
 
+# Load secrets kept outside the dotfiles repository.
+[[ -r "$HOME/.config/environment.d/context7.conf" ]] && source "$HOME/.config/environment.d/context7.conf"
+
 # Leave non-interactive shells with the Omarchy environment only.
 [[ $- != *i* ]] && return
 

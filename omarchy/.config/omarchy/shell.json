@@ -3,26 +3,58 @@
     "centerAnchor": "local.hindu-calendar",
     "layout": {
       "center": [
-        { "id": "omarchy.indicators" },
-        { "id": "local.hindu-calendar" },
-        { "id": "omarchy.keyboard-layout" },
-        { "id": "omarchy.weather" },
-        { "id": "omarchy.system-update" }
+        {
+          "id": "omarchy.indicators"
+        },
+        {
+          "id": "local.hindu-calendar"
+        },
+        {
+          "id": "omarchy.keyboard-layout"
+        },
+        {
+          "id": "omarchy.weather"
+        },
+        {
+          "id": "omarchy.system-update"
+        }
       ],
       "left": [
-        { "id": "omarchy.menu" },
-        { "id": "omarchy.workspaces" }
+        {
+          "id": "omarchy.menu"
+        },
+        {
+          "id": "omarchy.workspaces"
+        }
       ],
       "right": [
-        { "id": "omarchy.tray" },
-        { "id": "local.pomodoro" },
-        { "id": "shreyas.cliamp" },
-        { "id": "shreyas.agents" },
-        { "id": "omarchy.bluetooth" },
-        { "id": "omarchy.network" },
-        { "id": "omarchy.audio" },
-        { "id": "omarchy.monitor" },
-        { "id": "omarchy.power" }
+        {
+          "id": "omarchy.tray"
+        },
+        {
+          "id": "local.pomodoro"
+        },
+        {
+          "id": "shreyas.cliamp"
+        },
+        {
+          "id": "shreyas.agents"
+        },
+        {
+          "id": "omarchy.bluetooth"
+        },
+        {
+          "id": "omarchy.network"
+        },
+        {
+          "id": "omarchy.audio"
+        },
+        {
+          "id": "omarchy.monitor"
+        },
+        {
+          "id": "omarchy.power"
+        }
       ]
     },
     "position": "top",
